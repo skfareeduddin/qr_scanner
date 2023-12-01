@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_qr_reader/flutter_qr_reader.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -27,8 +29,25 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      //TODO: Here I want to pass the image to function that handles the scanning of the QR code.
-      print('Picked image path: ${pickedFile.path}');
+      try {
+        final resultFromFile = await FlutterQrReader.imgScan(pickedFile.path);
+        setState(() {
+          scannedCode = resultFromFile;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ResponseScreen(
+                codeText: scannedCode,
+                closeScreen: closeScreen,
+              ),
+            ),
+          );
+          isScanCompleted = true;
+          //dispose();
+        });
+      } on FormatException catch (_) {
+        print('Failed to decode QR code from image.');
+      }
     }
   }
 
@@ -70,8 +89,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _pickImageFromGallery,
-                child: Text('Pick Image from Gallery'),
+                onPressed: () async {
+                  _pickImageFromGallery();
+                },
+                child: const Text('Pick Image from Gallery'),
               ),
               Gap(5.h),
               Text(
@@ -107,6 +128,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             ),
           );
           isScanCompleted = true;
+          dispose();
         });
       }
     });

@@ -40,6 +40,7 @@ dependencies:
   material: ^1.0.0+2
   qr_code_scanner: ^1.0.1
   image_picker: ^1.0.4
+  flutter_qr_reader: ^1.0.5
 
 dev_dependencies:
   flutter_test:
